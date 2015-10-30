@@ -3,7 +3,7 @@
   <parent>
     <artifactId>cassandra-session-manager-parent</artifactId>
     <groupId>de.jbellmann.tomcat.cassandra</groupId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>cassandra-session-manager-hector</artifactId>

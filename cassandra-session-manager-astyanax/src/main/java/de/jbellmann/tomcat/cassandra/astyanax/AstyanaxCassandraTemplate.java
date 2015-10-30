@@ -48,6 +48,7 @@ public class AstyanaxCassandraTemplate extends CassandraTemplate {
     private AstyanaxContext<Cluster> context;
     private Keyspace keyspace;
     private ColumnFamily<String, Object> columnFamily;
+    private String seedHosts = "127.0.0.1:9160";
     
     private de.jbellmann.tomcat.cassandra.astyanax.ClassLoaderAwareObjectSerializer objectSerializer;
 
@@ -63,7 +64,7 @@ public class AstyanaxCassandraTemplate extends CassandraTemplate {
                         new ConnectionPoolConfigurationImpl("MyConnectionPool")
                         .setPort(9160)
                         .setMaxConnsPerHost(1)
-                        .setSeeds("127.0.0.1:9160")
+                        .setSeeds(seedHosts)
                         .setMaxTimeoutCount(5)
                         .setConnectTimeout(10000))
                 .withConnectionPoolMonitor(new Slf4jConnectionPoolMonitorImpl())
@@ -73,8 +74,8 @@ public class AstyanaxCassandraTemplate extends CassandraTemplate {
         
         
         try{
-            if(context.getEntity().describeKeyspace(getKeyspaceName()) == null){
-                KeyspaceDefinition ksDef = context.getEntity().makeKeyspaceDefinition();
+            if(context.getClient().describeKeyspace(getKeyspaceName()) == null){
+                KeyspaceDefinition ksDef = context.getClient().makeKeyspaceDefinition();
                 
                 Map<String, String> stratOptions = new HashMap<String, String>();
                 stratOptions.put("replication_factor", "1");
@@ -83,17 +84,21 @@ public class AstyanaxCassandraTemplate extends CassandraTemplate {
                         .setStrategyOptions(stratOptions)
                         .setStrategyClass(getStrategyClassName())
                         .addColumnFamily(
-                                context.getEntity().makeColumnFamilyDefinition()
+                                context.getClient().makeColumnFamilyDefinition()
                                         .setName(getColumnFamilyName())
                                         .setComparatorType("BytesType")
                                         .setKeyValidationClass("BytesType"));
                 
-                context.getEntity().addKeyspace(ksDef);
+                context.getClient().addKeyspace(ksDef);
             }
         }catch(Exception e){
             log.error(e.getMessage(), e);
         }
-        keyspace = context.getEntity().getKeyspace(getKeyspaceName());
+        try {
+            keyspace = context.getClient().getKeyspace(getKeyspaceName());
+        } catch (ConnectionException ce) {
+            log.error(ce.getMessage(), ce);
+        }
         // in hector we set the classloader to the objectSerializer
         columnFamily = new ColumnFamily<String, Object>(getColumnFamilyName(), StringSerializer.get(), objectSerializer);
     }
@@ -172,7 +177,11 @@ public class AstyanaxCassandraTemplate extends CassandraTemplate {
 
     @Override
     public void setAttribute(final String sessionId, final String name, final Object value) {
-        log.info("Set attribute '" + name + "' with value " + value.toString() + " for Session : " + sessionId + "");
+        if (null == value) {
+            log.info("Set attribute '" + name + "' with value null for Session : " + sessionId + "");
+        } else {
+            log.info("Set attribute '" + name + "' with value " + value.toString() + " for Session : " + sessionId + "");
+        }
         MutationBatch mutation = keyspace.prepareMutationBatch();
         mutation.withRow(columnFamily, sessionId).putColumn(name, value, objectSerializer, null);
         try{
@@ -246,6 +255,14 @@ public class AstyanaxCassandraTemplate extends CassandraTemplate {
             log.error("Could not delete row for sessionId '" + sessionId, e);
             throw new RuntimeException(e);
         }
+    }
+
+    public String getSeedHosts() {
+        return seedHosts;
+    }
+
+    public void setSeedHosts(String seedHosts) {
+        this.seedHosts = seedHosts;
     }
 
 }

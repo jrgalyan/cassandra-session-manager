@@ -3,11 +3,11 @@
   <parent>
     <groupId>de.jbellmann.tomcat.cassandra</groupId>
     <artifactId>cassandra-session-manager-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
   <groupId>de.jbellmann.tomcat.cassandra</groupId>
   <artifactId>cassandra-session-manager</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>Cassandra Tomcat Session Manager -- Impl</name>
 
   <build>

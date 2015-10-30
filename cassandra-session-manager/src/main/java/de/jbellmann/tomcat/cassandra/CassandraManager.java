@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.catalina.Container;
+import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.Loader;
@@ -63,9 +63,9 @@ public abstract class CassandraManager extends ManagerBase {
 
     public ClassLoader getClassLoader() {
         ClassLoader clazzLoader = getClass().getClassLoader();
-        Container container = getContainer();
-        if (container != null) {
-            Loader loader = container.getLoader();
+        Context context = getContext();
+        if (null != context) {
+            Loader loader = context.getLoader();
             if (loader != null) {
                 ClassLoader classLoader = loader.getClassLoader();
                 if (classLoader != null) {
@@ -297,6 +297,10 @@ public abstract class CassandraManager extends ManagerBase {
         sessionCounter++;
         //
         return session;
+    }
+
+    public String getInfo() {
+        return CassandraManager.class.getName() + "/1.0";
     }
 
     // GETTER-SETTER

@@ -46,10 +46,10 @@
                 </filter>
                 <filter>
                     <artifact>commons-lang:commons-lang</artifact>
-                    <includes>
+                  <!--  <includes>
                         <include>org/apache/commons/lang/StringUtils.class</include>
                         <include>org/apache/commons/lang/math/NumberUtils.class</include>
-                    </includes>
+                    </includes> -->
                 </filter>
                 <filter>
                   <artifact>*:*</artifact>

@@ -103,14 +103,28 @@ public class CassandraSession extends StandardSession {
         }
 
         if (maxInactiveInterval >= 0) {
+            log.debug("maxInactiveInterval passed to the session is " + maxInactiveInterval);
             long timeNow = System.currentTimeMillis();
             int timeIdle = (int) ((timeNow - lastAccessedTime) / MILLIS);
+            log.debug("timeIdle = " + timeIdle);
             if (timeIdle >= maxInactiveInterval) {
+                log.debug("Expiring session " + this.id);
                 expire(true);
             }
         }
 
         return this.isValid;
+    }
+
+    @Override
+    public void expire(boolean notify) {
+        super.expire(notify);
+        this.manager.remove(this);
+    }
+
+    @Override
+    public void expire() {
+        expire(false);
     }
 
     @Override

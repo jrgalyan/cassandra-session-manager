@@ -221,6 +221,7 @@ public abstract class CassandraManager extends ManagerBase {
 
     @Override
     public void remove(Session session) {
+        log.debug("Removing session " + session.getId() + " from Cassandra...");
         getCassandraOperations().removeSession(session.getId());
     }
 
